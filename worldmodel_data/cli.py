@@ -536,8 +536,16 @@ def command_minimum_world_model(args: argparse.Namespace) -> int:
 
 
 def parser() -> argparse.ArgumentParser:
+    from .history_audit import command_audit_history
     result = argparse.ArgumentParser(prog="nestlinker-data")
     sub = result.add_subparsers(dest="command", required=True)
+    audit = sub.add_parser("audit-seoul-history", help="audit annual ZIP files without modifying or admitting them")
+    audit.add_argument("--raw-dir", required=True)
+    audit.add_argument("--output-dir", required=True)
+    audit.add_argument("--years", type=int, nargs="+", default=list(range(2011, 2026)))
+    audit.add_argument("--duplicate-threshold", type=float, default=0.01)
+    audit.add_argument("--acquisition-ledger")
+    audit.set_defaults(handler=command_audit_history)
     catalog = sub.add_parser("catalog", help="list registered sources")
     catalog.add_argument("--category")
     catalog.set_defaults(handler=command_catalog)

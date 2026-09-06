@@ -19,6 +19,8 @@
 
 ## 快速使用
 
+年度历史文件回填前，先运行新增的 `audit-seoul-history`。下载、运行、报告字段和退出码见 [首尔年度审计说明](docs/SEOUL_HISTORY_AUDIT.md)。审计不会自动去重或发布快照。
+
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m worldmodel_data validate

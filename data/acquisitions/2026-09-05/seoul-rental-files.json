@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "source_id": "seoul-rental-price-files",
+  "landing_url": "https://data.seoul.go.kr/dataList/OA-21276/A/1/datasetView.do",
+  "source_page_saved_at": "2026-09-05T13:05:17Z",
+  "source_page_sha256": "b8bd3a152a0ecdb03d51982cbe3bda1e07cfc89cd2ea2a2f36dda59681269254",
+  "official_page_partition_instruction": "접수년도",
+  "file_year_semantics": "provider_defined_requires_row_level_audit",
+  "files": [
+    {
+      "file_year": 2011,
+      "official_file": "서울특별시_전월세가_2011.zip",
+      "retrieved_at": "2026-09-05T13:05:17.286311+00:00",
+      "bytes": 3603057,
+      "sha256": "09fd4230b4cd0abf67c24b4d192a5c61e1819a6f6ce640fa7c51b4e0bf3a0c7e",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2012,
+      "official_file": "서울특별시_전월세가_2012.zip",
+      "retrieved_at": "2026-09-05T13:05:17.585267+00:00",
+      "bytes": 3832084,
+      "sha256": "8569f8a797abc9d6caabb5b53c20447b68f15bdb249a84eb0bb98cda9ecc5d11",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2013,
+      "official_file": "서울특별시_전월세가_2013.zip",
+      "retrieved_at": "2026-09-05T13:05:17.767469+00:00",
+      "bytes": 4071711,
+      "sha256": "98685ddc9b45e3cb338b753398bb68f79df8f18bd35ded76f26364a441fc31a4",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2014,
+      "official_file": "서울특별시_전월세가_2014.zip",
+      "retrieved_at": "2026-09-05T13:05:17.945660+00:00",
+      "bytes": 4429962,
+      "sha256": "053c78272de9d58d77697d8aeab88776f755398451e46f94ddebf44692e5bcb9",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2015,
+      "official_file": "서울특별시_전월세가_2015.zip",
+      "retrieved_at": "2026-09-05T13:05:18.158194+00:00",
+      "bytes": 4555750,
+      "sha256": "b55f5dc52d4ae547435bfdd715469856f5edd64039a4c409add4f53b5a308f12",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2016,
+      "official_file": "서울특별시_전월세가_2016.zip",
+      "retrieved_at": "2026-09-05T13:05:18.355335+00:00",
+      "bytes": 4393397,
+      "sha256": "f2eb5aff4c3188b4a4e5f0a6874c370468b091835dc27e7ee9dc84299f34fcc0",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2017,
+      "official_file": "서울특별시_전월세가_2017.zip",
+      "retrieved_at": "2026-09-05T13:05:18.597619+00:00",
+      "bytes": 4532894,
+      "sha256": "4c57c455fb54b7e7e77b2279d7b26242bb0531c5d93a6a671e52d44a5095a717",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2018,
+      "official_file": "서울특별시_전월세가_2018.zip",
+      "retrieved_at": "2026-09-05T13:05:18.800249+00:00",
+      "bytes": 4937051,
+      "sha256": "5e32d31450b2d2afa0526151725a52a6fc03c3dfc9fc4cc4620635712ee098a6",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2019,
+      "official_file": "서울특별시_전월세가_2019.zip",
+      "retrieved_at": "2026-09-05T13:05:19.008180+00:00",
+      "bytes": 5145743,
+      "sha256": "3a521bdae3aebef7fd5cbe74a1aa288ded173a0bc7ab83a56143e00d531bf2c2",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2020,
+      "official_file": "서울특별시_전월세가_2020.zip",
+      "retrieved_at": "2026-09-05T13:05:19.247169+00:00",
+      "bytes": 5687803,
+      "sha256": "8976f47d1fae092450fc6ab404a94dc6c335ff29314b73822a857ed262181d2c",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2021,
+      "official_file": "서울특별시_전월세가_2021.zip",
+      "retrieved_at": "2026-09-05T13:05:19.440660+00:00",
+      "bytes": 7006126,
+      "sha256": "c623b49d483a41bb090329768297ea086fff181fb45a3bd7ad68a3e4e5ea4aac",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2022,
+      "official_file": "서울특별시_전월세가_2022.zip",
+      "retrieved_at": "2026-09-05T13:05:19.957331+00:00",
+      "bytes": 14462130,
+      "sha256": "77483fe458b54523042aa6443c25034918dd4cea220bd6e871b5332ac4cc3dab",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2023,
+      "official_file": "서울특별시_전월세가_2023.zip",
+      "retrieved_at": "2026-09-05T13:05:20.286411+00:00",
+      "bytes": 14651366,
+      "sha256": "8edf19b8c94fd81ebad58438a521cf789e2eb37b413323159e4990484701664b",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2024,
+      "official_file": "서울특별시_전월세가_2024.zip",
+      "retrieved_at": "2026-09-05T13:05:20.788433+00:00",
+      "bytes": 13844344,
+      "sha256": "1a72d2dc71a8cca3b1f87747427e5e181f7ae954d9c1fed6cf2f4670e674f125",
+      "status": "downloaded_not_admitted"
+    },
+    {
+      "file_year": 2025,
+      "official_file": "서울특별시_전월세가_2025.zip",
+      "retrieved_at": "2026-09-05T13:05:21.159882+00:00",
+      "bytes": 26675279,
+      "sha256": "d7a887488fb89eb337e134d4ce724b0279b207ec4d4f54e6ee3fb95c6fa49d52",
+      "status": "quarantined_pending_duplicate_explanation"
+    }
+  ]
+}
