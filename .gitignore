@@ -8,3 +8,5 @@ __pycache__/
 data/raw/
 data/work/
 
+# Local operational schedule configuration; commit only the example template.
+config/rtms-observation.json

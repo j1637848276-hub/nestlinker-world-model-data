@@ -1,0 +1,17 @@
+[Unit]
+Description=NestLinker weekly RTMS version observation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nestlinker
+Group=nestlinker
+WorkingDirectory=/opt/nestlinker-world-model-data
+EnvironmentFile=/etc/nestlinker/rtms.env
+ExecStart=/opt/nestlinker-world-model-data/.venv/bin/python -m worldmodel_data observe-rtms --config /etc/nestlinker/rtms-observation.json --storage-root /var/lib/nestlinker/rtms-observations
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/nestlinker/rtms-observations

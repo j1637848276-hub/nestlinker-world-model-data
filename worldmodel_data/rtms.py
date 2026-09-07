@@ -96,8 +96,14 @@ def normalize_item(
         deal_date = date(int(year), int(month), int(day)).isoformat()
     except ValueError:
         return None
-    deposit = _number(_pick(raw, "deposit", "보증금액"), integer=True) or 0
-    rent = _number(_pick(raw, "monthlyRent", "월세금액"), integer=True) or 0
+    deposit_text = _pick(raw, "deposit", "보증금액")
+    rent_text = _pick(raw, "monthlyRent", "월세금액")
+    deposit = _number(deposit_text, integer=True)
+    rent = _number(rent_text, integer=True)
+    # An explicit zero is valid.  Missing or malformed amounts are not zero and
+    # must not be converted into a jeonse observation.
+    if deposit is None or rent is None:
+        return None
     building_name = _pick(raw, "aptNm", "아파트", "offiNm", "단지", "houseType", "주택유형") or None
     identity = json.dumps(
         {

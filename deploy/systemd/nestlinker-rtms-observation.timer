@@ -1,0 +1,11 @@
+[Unit]
+Description=Run NestLinker RTMS observation every week
+
+[Timer]
+OnCalendar=Mon *-*-* 03:00:00 Asia/Seoul
+Persistent=true
+RandomizedDelaySec=15m
+Unit=nestlinker-rtms-observation.service
+
+[Install]
+WantedBy=timers.target

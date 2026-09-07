@@ -21,6 +21,8 @@
 
 年度历史文件回填前，先运行新增的 `audit-seoul-history`。下载、运行、报告字段和退出码见 [首尔年度审计说明](docs/SEOUL_HISTORY_AUDIT.md)。审计不会自动去重或发布快照。
 
+连续版本采集使用 `observe-rtms`，以真实运行时间衡量观察跨度并检查分页完整性、内容变化和字段缺失。配置、存储、恢复、审计及 Windows/systemd 调度见 [连续版本采集说明](docs/CONTINUOUS_OBSERVATION.md)。当前真实运行状态见 [采集状态报告](docs/research/continuous-observation-status-2026-09-07.md)。
+
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m worldmodel_data validate
@@ -84,6 +86,18 @@ python3 -m worldmodel_data fetch-rtms --months 3 --seoul-only
 ```
 
 RTMS 原始响应写入 gitignore 的 `data/raw/`；经过最小化、去标识和字段标准化后，才能发布到 `data/snapshots/`。
+
+持续采集不要使用会覆盖单次输出的旧命令，改用：
+
+```bash
+python3 -m worldmodel_data observe-rtms \
+  --config config/rtms-observation.json \
+  --storage-root data/raw/rtms-observations
+
+python3 -m worldmodel_data audit-rtms-versions \
+  --storage-root data/raw/rtms-observations \
+  --output-dir data/work/rtms-version-audit/<unused-run-name>
+```
 
 ## 数据契约
 

@@ -55,6 +55,11 @@ class RtmsTests(unittest.TestCase):
         self.assertEqual(set(PATHS), set(SOURCE_LANDING_URLS))
         self.assertEqual(len(set(SOURCE_IDS.values())), len(PATHS))
 
+    def test_missing_amount_is_not_silently_treated_as_zero(self):
+        items, _, _ = parse_xml_items(SAMPLE)
+        items[0].pop("monthlyRent")
+        self.assertIsNone(normalize_item("apartment", items[0], "11620"))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,13 @@ from pathlib import Path
 
 from .manifest import file_entry, sha256_file, validate_snapshot
 from .model_v0 import run_scenario_matrix, scenario_specification_sha256
+from .observation import (
+    audit_rtms_versions,
+    collect_rtms_observation,
+    load_observation_config,
+    load_resume_config,
+    observe_annual_archives,
+)
 from .replay import as_receipt_filter_counterfactual, audit_replay_inputs, run_historical_replay
 from .rtms import fetch_rtms, rolling_months, service_key_from_env
 from .seoul_rents import build_monthly_aggregates, load_acquisition_ledger, publish_monthly_snapshot
@@ -341,6 +348,61 @@ def command_fetch_rtms(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_observe_rtms(args: argparse.Namespace) -> int:
+    key = service_key_from_env()
+    if not key:
+        raise SystemExit("DATA_GO_KR_SERVICE_KEY is not set")
+    current = datetime.now(timezone.utc)
+    storage_root = Path(args.storage_root).expanduser().resolve()
+    if args.resume:
+        if not args.run_id:
+            raise SystemExit("--resume requires --run-id")
+        config = load_resume_config(storage_root, args.run_id)
+    else:
+        if not args.config:
+            raise SystemExit("--config is required unless --resume is used")
+        config = load_observation_config(
+            Path(args.config).expanduser().resolve(),
+            include_backfill=args.include_low_frequency,
+            today=current.date(),
+        )
+    commit = _git_value(ROOT, "rev-parse", "HEAD")
+    dirty = bool(_git_value(ROOT, "status", "--porcelain"))
+    result = collect_rtms_observation(
+        config=config,
+        storage_root=storage_root,
+        service_key=key,
+        code_commit=commit,
+        code_dirty=dirty,
+        observed_at=current,
+        run_id=args.run_id,
+        resume=args.resume,
+    )
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0 if result["version_complete"] else 2
+
+
+def command_observe_annual_archives(args: argparse.Namespace) -> int:
+    result = observe_annual_archives(
+        input_dir=Path(args.input_dir).expanduser().resolve(),
+        storage_root=Path(args.storage_root).expanduser().resolve(),
+        run_id=args.run_id,
+        code_commit=_git_value(ROOT, "rev-parse", "HEAD"),
+    )
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0
+
+
+def command_audit_rtms_versions(args: argparse.Namespace) -> int:
+    report = audit_rtms_versions(
+        storage_root=Path(args.storage_root).expanduser().resolve(),
+        output_dir=Path(args.output_dir).expanduser().resolve(),
+        cadence_days=args.cadence_days,
+    )
+    print(Path(args.output_dir).expanduser().resolve() / "SUMMARY.md")
+    return 0 if report["complete_run_count"] else 2
+
+
 def command_publish_seoul_history(args: argparse.Namespace) -> int:
     snapshot_date = _validated_snapshot_date(args.snapshot_date)
     raw_dir = Path(args.raw_dir).expanduser().resolve()
@@ -562,6 +624,23 @@ def parser() -> argparse.ArgumentParser:
     rtms.add_argument("--region-snapshot", default="2026-09-01")
     rtms.add_argument("--delay", type=float, default=0.15)
     rtms.set_defaults(handler=command_fetch_rtms)
+    observe = sub.add_parser("observe-rtms", help="collect an immutable RTMS observation version")
+    observe.add_argument("--config")
+    observe.add_argument("--storage-root", default="data/raw/rtms-observations")
+    observe.add_argument("--run-id")
+    observe.add_argument("--resume", action="store_true")
+    observe.add_argument("--include-low-frequency", action="store_true")
+    observe.set_defaults(handler=command_observe_rtms)
+    annual = sub.add_parser("observe-seoul-annual-files", help="record annual ZIP versions separately from RTMS")
+    annual.add_argument("--input-dir", required=True)
+    annual.add_argument("--storage-root", default="data/raw/rtms-observations")
+    annual.add_argument("--run-id", required=True)
+    annual.set_defaults(handler=command_observe_annual_archives)
+    version_audit = sub.add_parser("audit-rtms-versions", help="compare complete RTMS observation versions")
+    version_audit.add_argument("--storage-root", default="data/raw/rtms-observations")
+    version_audit.add_argument("--output-dir", required=True)
+    version_audit.add_argument("--cadence-days", type=int, default=7)
+    version_audit.set_defaults(handler=command_audit_rtms_versions)
     history = sub.add_parser("publish-seoul-history", help="publish privacy-minimal Seoul rental history aggregates")
     history.add_argument("--raw-dir", required=True)
     history.add_argument("--snapshot-date", required=True)
