@@ -103,6 +103,16 @@ class ManifestTests(unittest.TestCase):
             self.assertTrue(any("source_url mismatch" in item for item in errors))
             self.assertTrue(any("record_count mismatch" in item for item in errors))
 
+            entry["source_url"] = "https://example.test/source-old"
+            entry["record_count"] = 1
+            (root / "manifest.json").write_text(
+                json.dumps(complete_manifest([entry])), encoding="utf-8"
+            )
+            known["source-a"]["historical_landing_urls"] = [
+                "https://example.test/source-old"
+            ]
+            self.assertEqual(validate_snapshot(root, known), [])
+
     def test_manifest_rejects_empty_file_contracts(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -8,7 +8,10 @@
       "category": "market",
       "title": "国土交通部住宅租赁实价",
       "provider": "国土交通部",
-      "landing_url": "https://www.data.go.kr/data/15126469/openapi.do",
+      "landing_url": "https://www.data.go.kr/data/15126474/openapi.do",
+      "historical_landing_urls": [
+        "https://www.data.go.kr/data/15126469/openapi.do"
+      ],
       "access": "api_key",
       "license": "public-data-portal-source-terms",
       "geography": "nationwide, legal-dong district code",

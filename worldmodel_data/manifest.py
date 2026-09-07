@@ -245,7 +245,13 @@ def validate_snapshot(
             errors.append(f"{manifest_path}: unknown source_id {source_id!r}")
         elif isinstance(known_sources, Mapping):
             catalog_source = known_sources[str(source_id)]
-            if entry.get("source_url") != catalog_source.get("landing_url"):
+            allowed_source_urls = {catalog_source.get("landing_url")}
+            historical_urls = catalog_source.get("historical_landing_urls", [])
+            if isinstance(historical_urls, list):
+                allowed_source_urls.update(
+                    value for value in historical_urls if isinstance(value, str)
+                )
+            if entry.get("source_url") not in allowed_source_urls:
                 errors.append(f"{manifest_path}: source_url mismatch for {source_id}")
             if catalog_source.get("status") != "seeded":
                 errors.append(f"{manifest_path}: source {source_id} is not admitted as seeded")

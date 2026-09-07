@@ -29,11 +29,11 @@ CATALOG = ROOT / "catalog" / "datasets.json"
 
 SEED_FILES = {
     "data/public-housing/listings.json": (
-        "rtms-sample.json", "molit-rtms-rent", "https://www.data.go.kr/data/15126469/openapi.do",
+        "rtms-sample.json", "molit-rtms-rent", "https://www.data.go.kr/data/15126474/openapi.do",
         ["molit-rtms-officetel-rent", "molit-rtms-single-multi-rent"]
     ),
     "data/public-housing/summaries.json": (
-        "rtms-summaries.json", "molit-rtms-rent", "https://www.data.go.kr/data/15126469/openapi.do",
+        "rtms-summaries.json", "molit-rtms-rent", "https://www.data.go.kr/data/15126474/openapi.do",
         ["molit-rtms-officetel-rent", "molit-rtms-single-multi-rent"]
     ),
     "data/public-housing/demographics.json": (
@@ -310,6 +310,15 @@ def command_validate(_: argparse.Namespace) -> int:
         url = item.get("landing_url")
         if not isinstance(url, str) or not url.startswith("https://"):
             errors.append(f"catalog dataset {item.get('id', index)}: landing_url must use https")
+        historical_urls = item.get("historical_landing_urls", [])
+        if (
+            not isinstance(historical_urls, list)
+            or any(not isinstance(value, str) or not value.startswith("https://") for value in historical_urls)
+            or len(historical_urls) != len(set(historical_urls))
+        ):
+            errors.append(
+                f"catalog dataset {item.get('id', index)}: historical_landing_urls must be unique https URLs"
+            )
     snapshots_root = ROOT / "data" / "snapshots"
     manifests = sorted(snapshots_root.glob("*/*/manifest.json")) if snapshots_root.exists() else []
     if not manifests:

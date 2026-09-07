@@ -25,7 +25,7 @@ SOURCE_IDS = {
     "single_multi": "molit-rtms-single-multi-rent",
 }
 SOURCE_LANDING_URLS = {
-    "apartment": "https://www.data.go.kr/data/15126469/openapi.do",
+    "apartment": "https://www.data.go.kr/data/15126474/openapi.do",
     "officetel": "https://www.data.go.kr/data/15126475/openapi.do",
     "rowhouse": "https://www.data.go.kr/data/15126473/openapi.do",
     "single_multi": "https://www.data.go.kr/data/15126472/openapi.do",
