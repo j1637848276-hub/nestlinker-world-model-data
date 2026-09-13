@@ -670,14 +670,21 @@ def audit_rtms_versions(*, storage_root: Path, output_dir: Path, cadence_days: i
         total_raw_records += int(run.get("raw_record_count", 0))
         run_summaries.append({
             "run_id": run["run_id"],
+            "status": run.get("status"),
             "observed_at": run["observed_at"],
             "data_label": run.get("data_label", "observed"),
             "collection_succeeded": bool(run.get("collection_succeeded")),
             "version_complete": bool(run.get("version_complete")),
             "audit_passed": bool(run.get("audit_passed")),
             "public_release_eligible": bool(run.get("public_release_eligible")),
-            "planned_partitions": int(run.get("planned_partition_count", 0)),
-            "complete_partitions": int(run.get("complete_partition_count", 0)),
+            "planned_partitions": int(run.get("planned_partition_count", (
+                len(run.get("config", {}).get("sources", []))
+                * len(run.get("config", {}).get("lawd_codes", []))
+                * len(run.get("config", {}).get("contract_months", []))
+            ))),
+            "complete_partitions": int(run.get("complete_partition_count", sum(
+                item.get("status") == "complete" for item in partition_values
+            ))),
             "raw_records": int(run.get("raw_record_count", 0)),
             "missing_field_counts": dict(sorted(run_missing.items())),
         })
@@ -753,8 +760,8 @@ def audit_rtms_versions(*, storage_root: Path, output_dir: Path, cadence_days: i
                 ],
             })
             previous_complete[history_key] = (run, item)
-    partition_total = sum(int(run.get("planned_partition_count", 0)) for run, _ in runs)
-    partition_complete = sum(int(run.get("complete_partition_count", 0)) for run, _ in runs)
+    partition_total = sum(item["planned_partitions"] for item in run_summaries)
+    partition_complete = sum(item["complete_partitions"] for item in run_summaries)
     real_span_days = 0
     real_span_full_months = 0
     if len(real_complete_run_times) >= 2:
@@ -780,6 +787,7 @@ def audit_rtms_versions(*, storage_root: Path, output_dir: Path, cadence_days: i
         "audit_version": "rtms-version-audit-v1",
         "generated_at": _timestamp(),
         "run_count": len(runs),
+        "unfinished_run_count": sum(run.get("status") == "running" for run, _ in runs),
         "complete_run_count": len(complete_run_times),
         "real_observed_run_count": sum(run.get("data_label", "observed") == "observed" for run, _ in runs),
         "synthetic_run_count": sum(run.get("data_label") == "synthetic" for run, _ in runs),
@@ -831,8 +839,8 @@ def audit_rtms_versions(*, storage_root: Path, output_dir: Path, cadence_days: i
         },
         "metric_definitions": {
             "collection_success_rate": "finalized run manifests divided by attempted runs visible in storage",
-            "complete_version_rate": "runs with every planned partition complete divided by finalized or incomplete run manifests",
-            "partition_completeness_rate": "complete partitions divided by all planned partitions in finalized runs",
+            "complete_version_rate": "complete versions divided by all visible attempted runs, including unfinished runs",
+            "partition_completeness_rate": "complete partitions divided by planned partitions in all visible attempted runs; unfinished plans use the saved resolved configuration",
             "content_change_rate": "added plus removed exact-content occurrences divided by the larger partition size",
             "possible_revision_candidates": "the smaller of added and removed occurrences in one comparable partition; this is a review queue count, not a confirmed revision",
             "estimated_missed_scheduled_runs": "whole cadence intervals absent between complete runs; unscheduled downtime before the first and after the last run is unknowable",
@@ -851,7 +859,8 @@ def audit_rtms_versions(*, storage_root: Path, output_dir: Path, cadence_days: i
     _write_new_json(output_dir / "report.json", report)
     lines = [
         "# RTMS 连续版本数据时效审计", "",
-        f"真实完成运行：{len(complete_run_times)}；实际观察跨度：{real_span_days} 天；估算漏跑：{missed_runs}。", "",
+        f"真实完整运行：{len(real_complete_run_times)}；实际观察跨度：{real_span_days} 天；估算漏跑：{missed_runs}。", "",
+        f"可见运行尝试：{len(runs)}；未结束批次：{report['unfinished_run_count']}。未结束可能正在执行或已中断，均不计为完整版本。估算漏跑只计算完整版本之间的间隔，不代表尾部没有失败或漏跑。", "",
         f"分区完整率：{partition_complete}/{partition_total}。可靠版本比较：{report['reliable_comparison_count']}/{len(comparisons)}。", "",
         "首轮记录只标为 baseline_existing，不用于估计迟报。first_seen 是本采集器的观察区间，不是官方首次发布时间。", "",
         "本报告只描述采集与内容变化，不批准公开发布，也不生成房源安全或押金风险评分。", "",

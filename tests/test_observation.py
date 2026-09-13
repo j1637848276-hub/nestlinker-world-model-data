@@ -68,6 +68,22 @@ def config(months=None):
 
 
 class ObservationTests(unittest.TestCase):
+    def test_unfinished_attempt_keeps_planned_partitions_visible(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run_dir = root / "storage" / "runs" / "pending"
+            run_dir.mkdir(parents=True)
+            (run_dir / "run.json").write_text(json.dumps({
+                "run_id": "pending", "status": "running", "data_label": "observed",
+                "observation_version": "rtms-continuous-observation-v1",
+                "observed_at": "2026-09-14T00:00:00Z", "config": config(),
+            }), encoding="utf-8")
+            report = audit_rtms_versions(storage_root=root / "storage", output_dir=root / "audit")
+            self.assertEqual(report["unfinished_run_count"], 1)
+            self.assertEqual(report["partition_count"], 1)
+            self.assertEqual(report["complete_partition_count"], 0)
+            self.assertEqual(report["complete_run_count"], 0)
+
     def test_full_calendar_month_boundary_is_not_rounded_up(self):
         start = datetime(2026, 9, 7, 3, tzinfo=timezone.utc)
         self.assertEqual(_full_calendar_months(start, datetime(2026, 12, 6, 3, tzinfo=timezone.utc)), 2)
