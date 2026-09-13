@@ -52,6 +52,17 @@ class HistoryBackfillTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "mismatched"):
                 publish_monthly_snapshot({2011: archive}, root / "rejected", **arguments)
             self.assertFalse((root / "rejected").exists())
+            audit["sha256"] = acquisition["sha256"]
+            audit["complete"] = False
+            report.write_text(json.dumps(audit), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "incomplete"):
+                publish_monthly_snapshot({2011: archive}, root / "incomplete", **arguments)
+            audit["complete"] = True
+            audit["source_rows"] = 12
+            report.write_text(json.dumps(audit), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "source-row counts"):
+                publish_monthly_snapshot({2011: archive}, root / "wrong-count", **arguments)
+            self.assertFalse((root / "wrong-count").exists())
 
     def test_pre_2022_publish_requires_audit(self):
         with tempfile.TemporaryDirectory() as directory:
