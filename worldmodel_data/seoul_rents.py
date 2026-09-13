@@ -269,10 +269,8 @@ def publish_monthly_snapshot(
     with tempfile.TemporaryDirectory(prefix=f".{snapshot_dir.name}-", dir=snapshot_dir.parent) as staging:
         staging_dir = Path(staging)
         data_path = staging_dir / "seoul-rental-monthly.json"
-        data_path.write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        with data_path.open("w", encoding="utf-8", newline="\n") as handle:
+            handle.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
         entry = file_entry(data_path, staging_dir, SOURCE_ID, SOURCE_URL)
         entry.update({
             "data_label": "derived_observed",
@@ -387,10 +385,8 @@ def publish_monthly_snapshot(
                 "Receipt year is only annual information; neither historical as-of availability nor first publication is recovered.",
                 "Exact-field multiplicity is retained; aggregate counts are source rows, not confirmed unique transactions.",
             ])
-        (staging_dir / "manifest.json").write_text(
-            json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        with (staging_dir / "manifest.json").open("w", encoding="utf-8", newline="\n") as handle:
+            handle.write(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
         os.replace(staging_dir, snapshot_dir)
     return snapshot_dir
 

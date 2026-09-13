@@ -40,6 +40,8 @@ class HistoryBackfillTests(unittest.TestCase):
                              acquisitions=acquisitions, audit_dir=root)
             snapshot = root / "snapshot"
             publish_monthly_snapshot({2011: archive}, snapshot, **arguments)
+            self.assertNotIn(b"\r\n", (snapshot / "seoul-rental-monthly.json").read_bytes())
+            self.assertNotIn(b"\r\n", (snapshot / "manifest.json").read_bytes())
             payload = json.loads((snapshot / "seoul-rental-monthly.json").read_text(encoding="utf-8"))
             self.assertEqual(payload["sourceRowCount"], 13)
             self.assertEqual(payload["excludedWrongContractYear"], 1)
