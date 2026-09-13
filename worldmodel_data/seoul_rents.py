@@ -38,24 +38,37 @@ def _quantile(values: Iterable[int], probability: float) -> int | float:
 
 
 def _rows_from_archive(path: Path) -> Iterable[dict[str, str]]:
+    # Lazy import avoids the audit module's constants import cycle.
+    from .history_audit import _encoding
+
     if not path.is_file() or path.is_symlink():
         raise ValueError(f"{path}: archive must be a regular file")
     with zipfile.ZipFile(path) as archive:
         members = [item for item in archive.infolist() if not item.is_dir()]
-        if len(members) != 1 or not members[0].filename.lower().endswith(".csv"):
-            raise ValueError(f"{path}: expected exactly one CSV file")
+        if len(members) != 1 or not members[0].filename.lower().endswith((".csv", ".txt")):
+            raise ValueError(f"{path}: expected exactly one CSV or TXT file")
         if members[0].file_size > MAX_UNCOMPRESSED_BYTES:
             raise ValueError(f"{path}: uncompressed CSV exceeds safety limit")
-        with archive.open(members[0]) as probe:
-            prefix = probe.read(3)
-        encoding = "utf-8-sig" if prefix == b"\xef\xbb\xbf" else "cp949"
+        encoding = _encoding(archive, members[0])
         with archive.open(members[0]) as binary:
             with io.TextIOWrapper(binary, encoding=encoding, newline="") as text:
-                reader = csv.DictReader(text)
+                sample = text.read(65536)
+        try:
+            delimiter = csv.Sniffer().sniff(sample, delimiters=",\t;|").delimiter
+        except csv.Error:
+            delimiter = ","
+        with archive.open(members[0]) as binary:
+            with io.TextIOWrapper(binary, encoding=encoding, newline="") as text:
+                reader = csv.DictReader(text, delimiter=delimiter, strict=True)
+                if not reader.fieldnames or len(reader.fieldnames) != len(set(reader.fieldnames)):
+                    raise ValueError(f"{path}: empty or duplicate headers")
                 missing = REQUIRED_COLUMNS - set(reader.fieldnames or [])
                 if missing:
                     raise ValueError(f"{path}: missing columns: {sorted(missing)}")
-                yield from reader
+                for row in reader:
+                    if None in row or any(value is None for value in row.values()):
+                        raise ValueError(f"{path}: row width mismatch")
+                    yield row
 
 
 def build_monthly_aggregates(
@@ -209,6 +222,7 @@ def publish_monthly_snapshot(
     created_at: str,
     input_commit: str,
     acquisitions: Mapping[int, Mapping[str, object]],
+    audit_dir: Path | None = None,
 ) -> Path:
     """Publish immutable aggregates with source hashes and no property-level rows."""
     if snapshot_dir.exists():
@@ -218,7 +232,37 @@ def publish_monthly_snapshot(
     years = tuple(sorted(archives))
     if not years or any(later != earlier + 1 for earlier, later in zip(years, years[1:])):
         raise ValueError("archive years must be consecutive")
+    if years[0] < 2022 and audit_dir is None:
+        raise ValueError("historical TXT backfill requires hash-bound audit reports")
+    admission_audits = []
+    for year, path in sorted(archives.items()):
+        acquisition = acquisitions.get(year)
+        if acquisition is None or acquisition.get("sha256") != sha256_file(path) or acquisition.get("bytes") != path.stat().st_size:
+            raise ValueError(f"acquisition record does not match archive for {year}")
+        if audit_dir is not None:
+            report_path = audit_dir / f"{year}.audit.json"
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            if (report.get("year") != year or report.get("complete") is not True
+                    or report.get("status") not in ("needs_review", "checks_passed_pending_review")
+                    or report.get("sha256") != sha256_file(path)
+                    or report.get("bytes") != path.stat().st_size
+                    or report.get("missing_required_columns")
+                    or not report.get("source_rows")):
+                raise ValueError(f"{year}: incomplete, mismatched or quarantined audit")
+            admission_audits.append({"file_year": year, "audit_sha256": sha256_file(report_path),
+                                     "source_rows": report["source_rows"], "source_sha256": report["sha256"]})
     payload = build_monthly_aggregates(archives, minimum_group_count=10)
+    if admission_audits:
+        expected_counts = {item["file_year"]: item["source_rows"] for item in admission_audits}
+        if any(item["sourceRows"] != expected_counts[item["contractYear"]]
+               for item in payload["archiveAudits"]):
+            raise ValueError("aggregation source-row counts differ from bound audits")
+    published_rows = sum(int(record["count"]) for record in payload["records"])
+    accounted_rows = (published_rows + payload["suppressedContractCount"]
+                      + payload["excludedWrongContractYear"]
+                      + payload["excludedReceiptYearMismatch"] + payload["excludedInvalidRows"])
+    if accounted_rows != payload["sourceRowCount"]:
+        raise ValueError("source-row conservation failed")
     payload["generatedAt"] = created_at
     payload["contractYears"] = list(years)
     snapshot_dir.parent.mkdir(parents=True, exist_ok=True)
@@ -291,8 +335,9 @@ def publish_monthly_snapshot(
                 "path": f"data/raw/seoul-rental-files/seoul-rents-{year}.zip",
                 "sha256": digest,
             })
-            input_sources.append({
+        input_sources.append({
                 "contract_year": year,
+                "file_year": year,
                 "landing_url": SOURCE_URL,
                 "official_file": acquisition.get("official_file"),
                 "retrieved_at": retrieved_at,
@@ -322,6 +367,26 @@ def publish_monthly_snapshot(
             ],
             "files": [entry],
         }
+        if admission_audits:
+            manifest["admission_review"] = {
+                "policy": "same_file_contract_receipt_year_valid_rows_v2",
+                "audits": admission_audits,
+                "exact_duplicates": "retain source multiplicity below systemic quarantine threshold; not unique transactions",
+                "cross_file_overlap": "disjoint file-year-equals-contract-year cohorts; no transaction matching or deduplication",
+                "late_reports": "retained in raw archives; excluded from this conservative price-replay view",
+            }
+            manifest["transformation"]["version"] = "seoul-rental-history-v2"
+            manifest["transformation"]["command"] = (
+                "python -m worldmodel_data publish-seoul-history --raw-dir <batch> "
+                "--acquisition-ledger <ledger> --audit-dir <audit> --snapshot-date <date> --years "
+                + " ".join(str(year) for year in years)
+            )
+            manifest["limitations"].extend([
+                "File years are provider export labels, not a universal contract-year definition.",
+                "This same-year subset excludes late reports and is not a complete contract-history reconstruction.",
+                "Receipt year is only annual information; neither historical as-of availability nor first publication is recovered.",
+                "Exact-field multiplicity is retained; aggregate counts are source rows, not confirmed unique transactions.",
+            ])
         (staging_dir / "manifest.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
@@ -339,9 +404,11 @@ def load_acquisition_ledger(path: Path) -> dict[int, dict[str, object]]:
         raise ValueError(f"{path}: acquisition ledger has no files")
     records: dict[int, dict[str, object]] = {}
     for item in files:
-        if not isinstance(item, dict) or not isinstance(item.get("contract_year"), int):
+        if not isinstance(item, dict):
             raise ValueError(f"{path}: invalid acquisition record")
-        year = item["contract_year"]
+        year = item.get("file_year", item.get("contract_year"))
+        if not isinstance(year, int):
+            raise ValueError(f"{path}: invalid acquisition file year")
         if year in records:
             raise ValueError(f"{path}: duplicate acquisition year {year}")
         records[year] = item

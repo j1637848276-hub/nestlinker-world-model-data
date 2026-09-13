@@ -425,6 +425,7 @@ def command_publish_seoul_history(args: argparse.Namespace) -> int:
         created_at=datetime.now(timezone.utc).isoformat(),
         input_commit=_git_value(ROOT, "rev-parse", "HEAD"),
         acquisitions=load_acquisition_ledger(Path(args.acquisition_ledger).expanduser().resolve()),
+        audit_dir=Path(args.audit_dir).expanduser().resolve() if args.audit_dir else None,
     )
     print(target)
     return 0
@@ -655,6 +656,7 @@ def parser() -> argparse.ArgumentParser:
     history.add_argument("--snapshot-date", required=True)
     history.add_argument("--years", type=int, nargs="+", required=True)
     history.add_argument("--acquisition-ledger", required=True)
+    history.add_argument("--audit-dir", help="hash-bound annual quality reports; required for pre-2022 backfill")
     history.set_defaults(handler=command_publish_seoul_history)
     replay = sub.add_parser("historical-replay", help="run prior-year aggregate market replay")
     replay.add_argument("--snapshot-dir", required=True)

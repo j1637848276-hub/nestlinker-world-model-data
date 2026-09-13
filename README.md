@@ -21,6 +21,8 @@
 
 年度历史文件回填前，先运行新增的 `audit-seoul-history`。下载、运行、报告字段和退出码见 [首尔年度审计说明](docs/SEOUL_HISTORY_AUDIT.md)。审计不会自动去重或发布快照。
 
+2011–2024 的保守同年度价格回填规则、审核绑定和数据守恒说明见 [历史回填说明](docs/SEOUL_HISTORY_BACKFILL.md)。这一视图不会把迟报认定为无效，也不声称重建完整合同历史。
+
 连续版本采集使用 `observe-rtms`，以真实运行时间衡量观察跨度并检查分页完整性、内容变化和字段缺失。配置、存储、恢复、审计及 Windows/systemd 调度见 [连续版本采集说明](docs/CONTINUOUS_OBSERVATION.md)。当前真实运行状态见 [采集状态报告](docs/research/continuous-observation-status-2026-09-07.md)。
 
 ```bash
