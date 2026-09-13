@@ -8,6 +8,17 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $repoRoot
 
+# New scheduler processes do not inherit changes made to the user's environment
+# after the desktop app started. Import only this credential, never print it.
+if ($env:OS -eq "Windows_NT" -and [string]::IsNullOrWhiteSpace($env:DATA_GO_KR_SERVICE_KEY)) {
+    $env:DATA_GO_KR_SERVICE_KEY = [Environment]::GetEnvironmentVariable(
+        "DATA_GO_KR_SERVICE_KEY", [EnvironmentVariableTarget]::User
+    )
+}
+if ([string]::IsNullOrWhiteSpace($env:DATA_GO_KR_SERVICE_KEY)) {
+    throw "DATA_GO_KR_SERVICE_KEY is not configured; collection not started"
+}
+
 $python = "python"
 $venvPython = Join-Path $repoRoot ".venv/Scripts/python.exe"
 if (Test-Path -LiteralPath $venvPython) {
