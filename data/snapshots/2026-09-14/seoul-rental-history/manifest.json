@@ -78,7 +78,9 @@
   ],
   "transformation": {
     "command": "python -m worldmodel_data publish-seoul-history --raw-dir <batch> --acquisition-ledger <ledger> --audit-dir <audit> --snapshot-date <date> --years 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024",
-    "version": "seoul-rental-history-v2"
+    "version": "seoul-rental-history-v2",
+    "byte_normalization": "LF; corrected new development-branch manifest after Git normalized initial Windows CRLF output",
+    "lf_writer_commit": "cd841346206c9ecc299fa40d89318e2bf293b262"
   },
   "limitations": [
     "This snapshot supports aggregate market replay only, not deposit-loss or contract-safety validation.",
@@ -95,8 +97,8 @@
       "path": "seoul-rental-monthly.json",
       "source_id": "seoul-rental-price-files",
       "source_url": "https://data.seoul.go.kr/dataList/OA-21276/A/1/datasetView.do",
-      "sha256": "f56d9eb7ccbd6786fec51fd3e09d186b0a0fe46036eff796b9333b0b19cc6b2a",
-      "bytes": 13951941,
+      "sha256": "c8901ac54538e41c26e12923519e72a2404d4e751b0ffca1a11dbf3755470c45",
+      "bytes": 13470529,
       "record_count": 32085,
       "data_label": "derived_observed",
       "geography": "Seoul, 25 districts",
