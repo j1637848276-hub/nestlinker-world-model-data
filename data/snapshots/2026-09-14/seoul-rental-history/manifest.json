@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "snapshot_id": "seoul-rental-history-2026-09-14",
+  "created_at": "2026-09-13T21:27:09.861750+00:00",
+  "data_label": "derived_observed",
+  "geography": "Seoul, 25 districts",
+  "derivation": "Streamed official annual CSV files, retained only rows whose contract year and receipt year match the annual cohort, removed property-level fields, suppressed groups below 10 rows, and aggregated quantiles by contract month, district, building use and lease type.",
+  "input_repository": "https://github.com/sunruize93-cmyk/nestlinker-world-model-data",
+  "input_commit": "c122c334b0d617f16e6109037aed71dddcab9ffe",
+  "input_files": [
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2011.zip",
+      "sha256": "09fd4230b4cd0abf67c24b4d192a5c61e1819a6f6ce640fa7c51b4e0bf3a0c7e"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2012.zip",
+      "sha256": "8569f8a797abc9d6caabb5b53c20447b68f15bdb249a84eb0bb98cda9ecc5d11"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2013.zip",
+      "sha256": "98685ddc9b45e3cb338b753398bb68f79df8f18bd35ded76f26364a441fc31a4"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2014.zip",
+      "sha256": "053c78272de9d58d77697d8aeab88776f755398451e46f94ddebf44692e5bcb9"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2015.zip",
+      "sha256": "b55f5dc52d4ae547435bfdd715469856f5edd64039a4c409add4f53b5a308f12"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2016.zip",
+      "sha256": "f2eb5aff4c3188b4a4e5f0a6874c370468b091835dc27e7ee9dc84299f34fcc0"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2017.zip",
+      "sha256": "4c57c455fb54b7e7e77b2279d7b26242bb0531c5d93a6a671e52d44a5095a717"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2018.zip",
+      "sha256": "5e32d31450b2d2afa0526151725a52a6fc03c3dfc9fc4cc4620635712ee098a6"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2019.zip",
+      "sha256": "3a521bdae3aebef7fd5cbe74a1aa288ded173a0bc7ab83a56143e00d531bf2c2"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2020.zip",
+      "sha256": "8976f47d1fae092450fc6ab404a94dc6c335ff29314b73822a857ed262181d2c"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2021.zip",
+      "sha256": "c623b49d483a41bb090329768297ea086fff181fb45a3bd7ad68a3e4e5ea4aac"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2022.zip",
+      "sha256": "77483fe458b54523042aa6443c25034918dd4cea220bd6e871b5332ac4cc3dab"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2023.zip",
+      "sha256": "8edf19b8c94fd81ebad58438a521cf789e2eb37b413323159e4990484701664b"
+    },
+    {
+      "path": "data/raw/seoul-rental-files/seoul-rents-2024.zip",
+      "sha256": "1a72d2dc71a8cca3b1f87747427e5e181f7ae954d9c1fed6cf2f4670e674f125"
+    }
+  ],
+  "input_sources": [
+    {
+      "contract_year": 2024,
+      "file_year": 2024,
+      "landing_url": "https://data.seoul.go.kr/dataList/OA-21276/A/1/datasetView.do",
+      "official_file": "서울특별시_전월세가_2024.zip",
+      "retrieved_at": "2026-09-05T13:05:20.788433+00:00",
+      "sha256": "1a72d2dc71a8cca3b1f87747427e5e181f7ae954d9c1fed6cf2f4670e674f125",
+      "bytes": 13844344
+    }
+  ],
+  "transformation": {
+    "command": "python -m worldmodel_data publish-seoul-history --raw-dir <batch> --acquisition-ledger <ledger> --audit-dir <audit> --snapshot-date <date> --years 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024",
+    "version": "seoul-rental-history-v2"
+  },
+  "limitations": [
+    "This snapshot supports aggregate market replay only, not deposit-loss or contract-safety validation.",
+    "The 2025 official file downloaded on 2026-09-03 was quarantined because 446,244 of 1,084,942 rows were exact duplicates and multiplicity could not be resolved.",
+    "Out-of-year contract records are excluded to prevent overlap between annual cohorts.",
+    "Receipt-year mismatches are excluded so records known to enter in a later year cannot leak into the prior-year fold.",
+    "File years are provider export labels, not a universal contract-year definition.",
+    "This same-year subset excludes late reports and is not a complete contract-history reconstruction.",
+    "Receipt year is only annual information; neither historical as-of availability nor first publication is recovered.",
+    "Exact-field multiplicity is retained; aggregate counts are source rows, not confirmed unique transactions."
+  ],
+  "files": [
+    {
+      "path": "seoul-rental-monthly.json",
+      "source_id": "seoul-rental-price-files",
+      "source_url": "https://data.seoul.go.kr/dataList/OA-21276/A/1/datasetView.do",
+      "sha256": "f56d9eb7ccbd6786fec51fd3e09d186b0a0fe46036eff796b9333b0b19cc6b2a",
+      "bytes": 13951941,
+      "record_count": 32085,
+      "data_label": "derived_observed",
+      "geography": "Seoul, 25 districts",
+      "temporal_coverage": {
+        "start": "2011-01",
+        "end": "2024-12"
+      },
+      "usage": "historical_time_sliced_distribution",
+      "based_on_record_count": 5569590,
+      "minimum_cell_count": 10,
+      "source_columns_used": {
+        "접수년도": "annual availability guard",
+        "자치구코드": "guCode",
+        "자치구명": "guName",
+        "계약일": "contractYear and contractMonth",
+        "전월세구분": "leaseType",
+        "보증금(만원)": "deposit quantiles",
+        "임대료(만원)": "monthly-rent quantiles",
+        "건물용도": "buildingUse"
+      },
+      "field_dictionary": {
+        "contractYear": "calendar year of the reported contract date",
+        "contractMonth": "calendar month of the reported contract date",
+        "guCode": "five-digit Seoul district code from the source",
+        "guName": "Seoul district name from the source",
+        "buildingUse": "source housing-use category",
+        "leaseType": "monthly or jeonse",
+        "count": "source rows in the aggregate after validation; minimum 10",
+        "depositP25Manwon": "25th percentile deposit in 10,000 KRW",
+        "depositMedianManwon": "median deposit in 10,000 KRW",
+        "depositP75Manwon": "75th percentile deposit in 10,000 KRW",
+        "monthlyRentP25Manwon": "25th percentile monthly rent in 10,000 KRW",
+        "monthlyRentMedianManwon": "median monthly rent in 10,000 KRW",
+        "monthlyRentP75Manwon": "75th percentile monthly rent in 10,000 KRW"
+      },
+      "limitations": [
+        "Retrospective reported contracts can be corrected or cancelled after publication.",
+        "Contract dates are not listing, move-in, filing, or data-availability dates.",
+        "Aggregates describe historical reported contracts, not current inventory or individual contract safety.",
+        "Quantiles use linear interpolation within district/month/building-use/lease-type groups."
+      ]
+    }
+  ],
+  "admission_review": {
+    "policy": "same_file_contract_receipt_year_valid_rows_v2",
+    "audits": [
+      {
+        "file_year": 2011,
+        "audit_sha256": "86e2a139ca45faa65ac96daef8cb2cf561a155b9c560aab676222397e6558d88",
+        "source_rows": 316066,
+        "source_sha256": "09fd4230b4cd0abf67c24b4d192a5c61e1819a6f6ce640fa7c51b4e0bf3a0c7e"
+      },
+      {
+        "file_year": 2012,
+        "audit_sha256": "1ccb2b0d3057f3d25558f22b6fd826d536e718e74a272fc3f4210f52bd1b3b1e",
+        "source_rows": 338605,
+        "source_sha256": "8569f8a797abc9d6caabb5b53c20447b68f15bdb249a84eb0bb98cda9ecc5d11"
+      },
+      {
+        "file_year": 2013,
+        "audit_sha256": "fea489539a54728c6021cdb65118c452ffd0f350abb12dcf9cad06c6e16abd05",
+        "source_rows": 354559,
+        "source_sha256": "98685ddc9b45e3cb338b753398bb68f79df8f18bd35ded76f26364a441fc31a4"
+      },
+      {
+        "file_year": 2014,
+        "audit_sha256": "b181fa16a250f4daa7fffdaf0358c91bc4b5cc45697f9af8591be28bf6851c6e",
+        "source_rows": 393010,
+        "source_sha256": "053c78272de9d58d77697d8aeab88776f755398451e46f94ddebf44692e5bcb9"
+      },
+      {
+        "file_year": 2015,
+        "audit_sha256": "423c46b0c1643ab61bdc904b575f839b23dd04212a6bb40294e1faa91a42de42",
+        "source_rows": 398358,
+        "source_sha256": "b55f5dc52d4ae547435bfdd715469856f5edd64039a4c409add4f53b5a308f12"
+      },
+      {
+        "file_year": 2016,
+        "audit_sha256": "1f704e977fc540fb76bae70d7c1e1c3f419bce4227a889f37a5722d09f5ff324",
+        "source_rows": 382412,
+        "source_sha256": "f2eb5aff4c3188b4a4e5f0a6874c370468b091835dc27e7ee9dc84299f34fcc0"
+      },
+      {
+        "file_year": 2017,
+        "audit_sha256": "b2160f607b1bc071d092cf40ca6fe9c76b7bff2a7fe747319f7519149c1ca426",
+        "source_rows": 398292,
+        "source_sha256": "4c57c455fb54b7e7e77b2279d7b26242bb0531c5d93a6a671e52d44a5095a717"
+      },
+      {
+        "file_year": 2018,
+        "audit_sha256": "21ee576daef9a18cc9471dbc1735abaef2e93fc4b6f8df005a7bdae933fb6e78",
+        "source_rows": 436595,
+        "source_sha256": "5e32d31450b2d2afa0526151725a52a6fc03c3dfc9fc4cc4620635712ee098a6"
+      },
+      {
+        "file_year": 2019,
+        "audit_sha256": "d59d265fc296535213e1aa3a3beba2a88281cb4aa3451436fa7a902e09faf53c",
+        "source_rows": 458969,
+        "source_sha256": "3a521bdae3aebef7fd5cbe74a1aa288ded173a0bc7ab83a56143e00d531bf2c2"
+      },
+      {
+        "file_year": 2020,
+        "audit_sha256": "66aca889b0b30de553b686e82e66ecb0ad269faf72fbfdadeabbd7ee567cf3ec",
+        "source_rows": 509038,
+        "source_sha256": "8976f47d1fae092450fc6ab404a94dc6c335ff29314b73822a857ed262181d2c"
+      },
+      {
+        "file_year": 2021,
+        "audit_sha256": "d4a6fd1f41065109279a73c0bee9288b89ae6aa19de4eb13a8bb6e94e9b77b61",
+        "source_rows": 524675,
+        "source_sha256": "c623b49d483a41bb090329768297ea086fff181fb45a3bd7ad68a3e4e5ea4aac"
+      },
+      {
+        "file_year": 2022,
+        "audit_sha256": "c0aeda3234cee47a00cd2ea9868f2a9e0c9298bf9a76c241ec7344cfe53b9ca9",
+        "source_rows": 560665,
+        "source_sha256": "77483fe458b54523042aa6443c25034918dd4cea220bd6e871b5332ac4cc3dab"
+      },
+      {
+        "file_year": 2023,
+        "audit_sha256": "d2cb286fba28c4c1438f50d4e3839752f491780166f5fd278d9957edf5f0d685",
+        "source_rows": 545813,
+        "source_sha256": "8edf19b8c94fd81ebad58438a521cf789e2eb37b413323159e4990484701664b"
+      },
+      {
+        "file_year": 2024,
+        "audit_sha256": "57edf8b15d5393c1d0631c1960d9e3a8527f63b743b10cef31cde6b40630678c",
+        "source_rows": 522001,
+        "source_sha256": "1a72d2dc71a8cca3b1f87747427e5e181f7ae954d9c1fed6cf2f4670e674f125"
+      }
+    ],
+    "exact_duplicates": "retain source multiplicity below systemic quarantine threshold; not unique transactions",
+    "cross_file_overlap": "disjoint file-year-equals-contract-year cohorts; no transaction matching or deduplication",
+    "late_reports": "retained in raw archives; excluded from this conservative price-replay view"
+  }
+}
