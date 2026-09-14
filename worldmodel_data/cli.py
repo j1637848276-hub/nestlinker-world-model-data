@@ -357,6 +357,14 @@ def command_fetch_rtms(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_export_rtms_observation(args: argparse.Namespace) -> int:
+    from .observation_export import export_observation
+    result = export_observation(Path(args.storage_root), args.run_id, Path(args.output_dir))
+    print(json.dumps({"run_id": result["run_id"], "record_count": result["record_count"],
+                      "public_release_eligible": False}, ensure_ascii=False))
+    return 0
+
+
 def command_observe_rtms(args: argparse.Namespace) -> int:
     key = service_key_from_env()
     if not key:
@@ -641,6 +649,11 @@ def parser() -> argparse.ArgumentParser:
     observe.add_argument("--resume", action="store_true")
     observe.add_argument("--include-low-frequency", action="store_true")
     observe.set_defaults(handler=command_observe_rtms)
+    export = sub.add_parser("export-rtms-observation", help="export complete RTMS records locally; never public admission")
+    export.add_argument("--storage-root", required=True)
+    export.add_argument("--run-id", required=True)
+    export.add_argument("--output-dir", required=True)
+    export.set_defaults(handler=command_export_rtms_observation)
     annual = sub.add_parser("observe-seoul-annual-files", help="record annual ZIP versions separately from RTMS")
     annual.add_argument("--input-dir", required=True)
     annual.add_argument("--storage-root", default="data/raw/rtms-observations")
