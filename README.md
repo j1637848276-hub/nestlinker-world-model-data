@@ -31,6 +31,8 @@
 
 2025 年 1–9 月 API 首次回填的实际结果及尚未执行范围见 [历史 API 运行状态](docs/research/rtms-history-status-2026-09-14.md)。
 
+2011–2024 API 分年控制器已启动，尚在采集中；运行边界见 [全历史回填进度](docs/research/rtms-full-backfill-progress-2026-09-14.md)。
+
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m worldmodel_data validate
