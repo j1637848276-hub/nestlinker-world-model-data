@@ -15,7 +15,7 @@ python scripts/prepare_rtms_history.py --output-dir data/work/rtms-history-plan/
 先运行最新历史年份，再依次运行更早年份，逐批检查退出码和 manifest，失败时停止后续批次以避免反复无效请求：
 
 ```powershell
-powershell.exe -NoProfile -File scripts/run_rtms_observation.ps1 `
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/run_rtms_observation.ps1 `
   -Config data/work/rtms-history-plan/initial/rtms-history-2025.json `
   -StorageRoot data/raw/rtms-history-observations
 ```
@@ -38,4 +38,6 @@ python -m worldmodel_data audit-rtms-versions `
 
 ## 运行条件
 
-原始明细、指纹和计划保存于 Git 忽略目录，不上传公开 CI。当前凭据与持久磁盘在本机可用，但历史月度调度尚须按验证后的配额、在线主机和备份条件部署；不能把配置文件生成称为调度已启动。已有近期每周计划保持不变。
+原始明细、指纹和计划保存于 Git 忽略目录，不上传公开 CI。当前凭据与持久磁盘在本机可用。2026-09-14 已将现有月度补查计划更新为独立历史线，仅查询 2025-01 至 2025-09，下一次计划首尔时间 2026-10-01 04:00；已有近期每周计划保持不变，下一次为 2026-09-21 03:00。更早年份尚未部署低频复查，也没有完成全部初次回填。
+
+运行要求持续在线主机与备份；本地计划要求电脑开机且应用运行，依据 [OpenAI Docs 定时任务说明](https://learn.chatgpt.com/docs/automations?surface=app) 核对。计划更新不代表未来已执行成功。Windows 命令的 Bypass 仅作用于该次进程，不修改系统执行策略。
