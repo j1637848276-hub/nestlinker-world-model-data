@@ -25,7 +25,7 @@
 
 连续版本采集使用 `observe-rtms`，以真实运行时间衡量观察跨度并检查分页完整性、内容变化和字段缺失。配置、存储、恢复、审计及 Windows/systemd 调度见 [连续版本采集说明](docs/CONTINUOUS_OBSERVATION.md)。当前真实运行状态见 [采集状态报告](docs/research/continuous-observation-status-2026-09-07.md)。
 
-最新真实采集、403 阻塞、调度和历史发布状态见 [2026-09-14 管道状态](docs/research/data-pipeline-status-2026-09-14.md)。
+最新真实采集恢复与版本比较见 [2026-09-14 晚间恢复报告](docs/research/rtms-recovery-2026-09-14.md)；当日早间阻塞与历史发布状态保留在 [管道状态](docs/research/data-pipeline-status-2026-09-14.md)。
 
 ```bash
 python3 -m unittest discover -s tests -v
