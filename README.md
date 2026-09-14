@@ -29,6 +29,8 @@
 
 近期每周与历史低频采集的独立存储、逐年回填入口见 [API 历史观测说明](docs/RTMS_HISTORY_OBSERVATION.md)。历史配置可用 `rolling_contract_months=0`，仅查询固定月份，不混入当前滚动窗口。
 
+2025 年 1–9 月 API 首次回填的实际结果及尚未执行范围见 [历史 API 运行状态](docs/research/rtms-history-status-2026-09-14.md)。
+
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m worldmodel_data validate
