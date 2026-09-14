@@ -68,6 +68,23 @@ def config(months=None):
 
 
 class ObservationTests(unittest.TestCase):
+    def test_history_only_queue_does_not_add_current_month(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.json"
+            payload = config()
+            payload["rolling_contract_months"] = 0
+            payload["fixed_contract_months"] = ["201201", "201202", "201201"]
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            resolved = load_observation_config(path, today=date(2026, 9, 14))
+            self.assertEqual(resolved["contract_months"], ["201201", "201202"])
+            payload["fixed_contract_months"] = []
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "at least one"):
+                load_observation_config(path)
+            payload["low_frequency_contract_months"] = ["201201"]
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            self.assertEqual(load_observation_config(path, include_backfill=True)["contract_months"], ["201201"])
+
     def test_unfinished_attempt_keeps_planned_partitions_visible(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

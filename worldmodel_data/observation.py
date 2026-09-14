@@ -88,8 +88,8 @@ def load_observation_config(path: Path, *, include_backfill: bool = False, today
     target_months = payload.get("target_observation_months", 6)
     if not isinstance(cadence_days, int) or not 1 <= cadence_days <= 31:
         raise ValueError("cadence_days must be between 1 and 31")
-    if not isinstance(rolling_count, int) or not 1 <= rolling_count <= 60:
-        raise ValueError("rolling_contract_months must be between 1 and 60")
+    if not isinstance(rolling_count, int) or not 0 <= rolling_count <= 60:
+        raise ValueError("rolling_contract_months must be between 0 and 60")
     if not isinstance(minimum_months, int) or minimum_months < 3:
         raise ValueError("minimum_observation_months must be at least 3")
     if not isinstance(target_months, int) or target_months < minimum_months:
@@ -110,12 +110,14 @@ def load_observation_config(path: Path, *, include_backfill: bool = False, today
     backfill = payload.get("low_frequency_contract_months", []) if include_backfill else []
     if not isinstance(fixed, list) or not isinstance(backfill, list):
         raise ValueError("fixed month queues must be lists")
-    months = rolling_months(rolling_count, today)
+    months = rolling_months(rolling_count, today) if rolling_count else []
     for month in [*fixed, *backfill]:
         if not isinstance(month, str) or not _valid_month(month):
             raise ValueError(f"invalid configured contract month: {month!r}")
         if month not in months:
             months.append(month)
+    if not months:
+        raise ValueError("observation config must select at least one contract month")
     delay = payload.get("delay_seconds", 0.15)
     timeout = payload.get("request_timeout_seconds", 30)
     retries = payload.get("retry_attempts", 3)

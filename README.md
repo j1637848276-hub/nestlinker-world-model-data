@@ -27,6 +27,8 @@
 
 最新真实采集恢复与版本比较见 [2026-09-14 晚间恢复报告](docs/research/rtms-recovery-2026-09-14.md)；当日早间阻塞与历史发布状态保留在 [管道状态](docs/research/data-pipeline-status-2026-09-14.md)。
 
+近期每周与历史低频采集的独立存储、逐年回填入口见 [API 历史观测说明](docs/RTMS_HISTORY_OBSERVATION.md)。历史配置可用 `rolling_contract_months=0`，仅查询固定月份，不混入当前滚动窗口。
+
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m worldmodel_data validate
