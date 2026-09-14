@@ -10,10 +10,14 @@ Set-Location -LiteralPath $repoRoot
 
 # New scheduler processes do not inherit changes made to the user's environment
 # after the desktop app started. Import only this credential, never print it.
-if ($env:OS -eq "Windows_NT" -and [string]::IsNullOrWhiteSpace($env:DATA_GO_KR_SERVICE_KEY)) {
-    $env:DATA_GO_KR_SERVICE_KEY = [Environment]::GetEnvironmentVariable(
+if ($env:OS -eq "Windows_NT") {
+    $userServiceKey = [Environment]::GetEnvironmentVariable(
         "DATA_GO_KR_SERVICE_KEY", [EnvironmentVariableTarget]::User
     )
+    if (-not [string]::IsNullOrWhiteSpace($userServiceKey)) {
+        $env:DATA_GO_KR_SERVICE_KEY = $userServiceKey
+    }
+    Remove-Variable userServiceKey -ErrorAction SilentlyContinue
 }
 if ([string]::IsNullOrWhiteSpace($env:DATA_GO_KR_SERVICE_KEY)) {
     throw "DATA_GO_KR_SERVICE_KEY is not configured; collection not started"
